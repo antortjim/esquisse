@@ -176,6 +176,26 @@ chartControlsServer <- function(input,
     }
   )
   
+  output$export_raw_csv <- downloadHandler(
+    filename = function() {
+      paste0("esquisse_raw", format(Sys.time(), format = "%Y%m%dT%H%M%S"), ".csv")
+    },
+    content = function(file) {
+      data.table::fwrite(x = data_table(), file = file, row.names = FALSE)
+    }
+  )
+  
+  output$export_csv <- downloadHandler(
+    filename = function() {
+      paste0("esquisse", format(Sys.time(), format = "%Y%m%dT%H%M%S"), ".csv")
+    },
+    content = function(file) {
+      data.table::fwrite(x = output_filter$data_filtered(), file = file, row.names = FALSE)
+    }
+  )
+  
+  
+  
   
   
   # Code ----
@@ -683,6 +703,19 @@ controls_code <- function(ns, insert_code = FALSE) {
       downloadButton(
         outputId = ns("export_ppt"), 
         label = ".pptx",
+        class = "btn-primary btn-xs"
+      )
+    ),
+    tags$div(
+      class = "btn-group btn-group-justified",
+      downloadButton(
+        outputId = ns("export_raw_csv"), 
+        label = "raw.csv",
+        class = "btn-primary btn-xs"
+      ),
+      downloadButton(
+        outputId = ns("export_csv"), 
+        label = ".csv",
         class = "btn-primary btn-xs"
       )
     )
