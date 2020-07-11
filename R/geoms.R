@@ -81,8 +81,9 @@ potential_geoms <- function(data, mapping, auto = FALSE) {
 }
 
 
-
-
+geom_popetho <- function(...) {
+  fslggetho::stat_pop_etho(...)
+}
 
 #' @importFrom ggplot2 geom_histogram geom_density geom_bar geom_sf 
 #' geom_boxplot geom_bar geom_point geom_line geom_tile geom_violin
@@ -102,8 +103,10 @@ potential_geoms_ref <- function() {
       "continuous",  "discrete",    "bar",       "1",
       "discrete",    "continuous",  "boxplot",   "0", 
       "discrete",    "continuous",  "violin",    "0", 
+      "discrete",    "continuous",  "jitter",    "0", 
       "discrete",    "continuous",  "bar",       "1",
-      "continuous",  "continuous",  "point",     "1",
+      "continuous",  "continuous",  "popetho",     "1",
+      "continuous",  "continuous",  "point",     "0",
       "continuous",  "continuous",  "line",      "0", 
       "continuous",  "continuous",  "area",      "0",
       "discrete",    "discrete",    "tile",      "1",
@@ -177,8 +180,14 @@ match_geom_args <- function(geom, args, add_aes = TRUE, mapping = list(), envir 
   if (!grepl(pattern = "^geom_", x = geom))
     geom <- paste0("geom_", geom)
   geom_args <- try(formals(fun = get(geom, envir = pkg_envir)), silent = TRUE)
-  if (inherits(geom_args, "try-error"))
-    stop(paste(geom, "not found in", envir), call. = FALSE)
+  
+  if (inherits(geom_args, "try-error")) {
+    warning(paste(geom, "not found in", envir), call. = FALSE)
+    geom_args <- try(formals(fun = get(geom)), silent = TRUE)
+    if (inherits(geom_args, "try-error"))
+      stop(paste(geom, "not found anywhere!"), call. = FALSE)
+  }
+  
   if (!is.null(geom_args$stat)) {
     stat_args <- try(
       formals(fun = get(paste0("stat_", geom_args$stat), envir = pkg_envir)),

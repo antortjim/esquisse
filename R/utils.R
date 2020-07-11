@@ -190,8 +190,8 @@ col_type <- function(x, no_id = FALSE) {
 # utils for geom icons
 geomIcons <- function() {
   geoms <- c(
-    "auto", "line", "area", "bar", "histogram", 
-    "point", "boxplot", "violin", "density", 
+    "auto", "popetho", "line", "area", "bar", "histogram", 
+    "point", "boxplot", "violin", "jitter", "density", 
     "tile", "sf"
   )
   href <- "esquisse/geomIcon/gg-%s.png"
