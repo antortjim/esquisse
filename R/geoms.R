@@ -85,6 +85,12 @@ geom_popetho <- function(...) {
   fslggetho::stat_pop_etho(...)
 }
 
+geom_popethold <- function(...) {
+  fslggetho::stat_pop_etho(...)
+}
+
+
+
 #' @importFrom ggplot2 geom_histogram geom_density geom_bar geom_sf 
 #' geom_boxplot geom_bar geom_point geom_line geom_tile geom_violin
 #' geom_area geom_smooth geom_col
@@ -105,7 +111,8 @@ potential_geoms_ref <- function() {
       "discrete",    "continuous",  "violin",    "0", 
       "discrete",    "continuous",  "jitter",    "0", 
       "discrete",    "continuous",  "bar",       "1",
-      "continuous",  "continuous",  "popetho",     "1",
+      "continuous",  "continuous",  "popethold", "1",
+      "continuous",  "continuous",  "popetho",   "0",
       "continuous",  "continuous",  "point",     "0",
       "continuous",  "continuous",  "line",      "0", 
       "continuous",  "continuous",  "area",      "0",

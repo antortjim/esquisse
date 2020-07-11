@@ -190,7 +190,7 @@ col_type <- function(x, no_id = FALSE) {
 # utils for geom icons
 geomIcons <- function() {
   geoms <- c(
-    "auto", "popetho", "line", "area", "bar", "histogram", 
+    "auto", "popethold", "popetho", "line", "area", "bar", "histogram", 
     "point", "boxplot", "violin", "jitter", "density", 
     "tile", "sf"
   )

@@ -239,7 +239,13 @@ esquisserServer <- function(input,
       expr = gg_call,
       data = setNames(list(data), dataChart$name)
     )
-    ggplotCall$ggobj$plot
+    
+    plot <- ggplotCall$ggobj$plot
+    
+    if (geom == "popethold") plot <- plot +
+      fslggetho::stat_ld_annotations(color = NA, height = 1, alpha = 0.2)
+  
+    plot
   })
 
 
