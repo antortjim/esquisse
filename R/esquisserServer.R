@@ -21,10 +21,14 @@ esquisserServer <- function(input,
                             session,
                             data = NULL,
                             dataModule = c("GlobalEnv", "ImportFile"),
-                            sizeDataModule = "m") {
+                            sizeDataModule = "m",
+                            input_modal = TRUE
+                            ) {
 
   ggplotCall <- reactiveValues(code = "")
-
+ 
+  launchOnStart <- if (input_modal) is.null(isolate(data$data)) else {FALSE}
+  
   observeEvent(data$data, {
     dataChart$data <- data$data
     dataChart$name <- data$name
@@ -35,38 +39,47 @@ esquisserServer <- function(input,
     id = "choose-data",
     data = isolate(data$data),
     name = isolate(data$name),
-    launchOnStart = is.null(isolate(data$data)),
+    launchOnStart = launchOnStart,
     coerceVars = getOption(x = "esquisse.coerceVars", default = FALSE),
     dataModule = dataModule, size = sizeDataModule
   )
+  
+  # dragula_src <- reactiveVal(NULL)
+  
   observeEvent(dataChart$data, {
     if (is.null(dataChart$data)) {
-      updateDragulaInput(
-        session = session,
-        inputId = "dragvars", 
-        status = NULL, 
-        choices = character(0),
-        badge = FALSE
-      )
+      # updateDragulaInput(
+      #   session = session,
+      #   inputId = "dragvars", 
+      #   status = NULL, 
+      #   choices = character(0),
+      #   badge = FALSE
+      # )
     } else {
       # special case: geom_sf
       if (inherits(dataChart$data, what = "sf")) {
         geom_possible$x <- c("sf", geom_possible$x)
       }
       var_choices <- setdiff(names(dataChart$data), attr(dataChart$data, "sf_column"))
-      updateDragulaInput(
-        session = session,
-        inputId = "dragvars", 
-        status = NULL,
-        choiceValues = var_choices,
-        choiceNames = badgeType(
-          col_name = var_choices,
-          col_type = col_type(dataChart$data[, var_choices])
-        ),
-        badge = FALSE
-      )
+      
+        message("updating dragula input")
+        updateDragulaInput(
+          session = session,
+          inputId = "dragvars", 
+          status = NULL,
+          selected = input$dragvars,
+          choiceValues = var_choices,
+          choiceNames = badgeType(
+            col_name = var_choices,
+            col_type = col_type(dataChart$data[, var_choices])
+          ),
+          badge = FALSE
+        )
+        message("Done")
+      # }
     }
   }, ignoreNULL = FALSE)
+  
 
   geom_possible <- reactiveValues(x = "auto")
   geom_controls <- reactiveValues(x = "auto")
@@ -142,17 +155,26 @@ esquisserServer <- function(input,
   )
 
 
-  output$plooooooot <- renderPlot({
-    req(input$play_plot, cancelOutput = TRUE)
+  observe({
+    req(input$play_plot)
     req(dataChart$data)
     req(paramsChart$data)
     req(paramsChart$inputs)
     req(input$geom)
 
     aes_input <- make_aes(input$dragvars$target)
-
-    req(unlist(aes_input) %in% names(dataChart$data))
-
+    if (! all(unlist(aes_input) %in% names(dataChart$data))) {
+      
+      not_available <- unlist(aes_input)[ ! (unlist(aes_input) %in% names(dataChart$data))]
+      showNotification(
+        sprintf("Failure: columns [ %s ] are not available in the dataset.
+        Did you carry it from a previous dataset where it is available?
+        Please remove it from its box", paste(not_available, collapse = " ")),
+      type = "error")
+      
+      shiny::validate(shiny::need(FALSE, label = ""))
+    }
+    
     mapping <- build_aes(
       data = dataChart$data,
       .list = aes_input,
@@ -245,7 +267,12 @@ esquisserServer <- function(input,
     if (geom == "popethold") plot <- plot +
       fslggetho::stat_ld_annotations(color = NA, height = 1, alpha = 0.2)
   
-    plot
+    output_module$plot <- plot
+  })
+  
+  output$plooooooot <- renderPlot({
+    message("Inside renderPlot")
+    output_module$plot
   })
 
 
@@ -253,7 +280,7 @@ esquisserServer <- function(input,
   observeEvent(input$close, shiny::stopApp())
 
   # Ouput of module (if used in Shiny)
-  output_module <- reactiveValues(code_plot = NULL, code_filters = NULL, data = NULL)
+  output_module <- reactiveValues(code_plot = NULL, code_filters = NULL, data = NULL, plot = NULL)
   observeEvent(ggplotCall$code, {
     output_module$code_plot <- ggplotCall$code
   }, ignoreInit = TRUE)
