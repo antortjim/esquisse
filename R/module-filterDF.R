@@ -178,7 +178,7 @@ create_filters <- function(data, vars = NULL,
       } else {
         tags$span(tags$label(variable), HTML("&nbsp;&nbsp;"))
       }
-      if (inherits(x = var, what = c("numeric", "integer"))) {
+      if (inherits(x = var, what = c("numeric", "integer")) & variable != "t") {
         params <- find_range_step(var)
         tags$div(
           style = "position: relative;",
@@ -204,6 +204,21 @@ create_filters <- function(data, vars = NULL,
             max = max(var), 
             width = width,
             value = range(var), 
+            label = NULL
+          ))
+        )
+      } else if (variable == "t") {
+        params <- find_range_step(var)
+        tags$div(
+          style = "position: relative;",
+          tag_label,
+          set_slider_attr(sliderInput(
+            inputId = ns(id), 
+            min = params$min / 3600, 
+            max = params$max/ 3600, 
+            width = width,
+            value = round(params$range / 3600), 
+            step = 0.5,
             label = NULL
           ))
         )
@@ -300,9 +315,28 @@ make_expr_filter <- function(filters, filters_na, data, data_name) {
       if (!is.null(values) & !match_class(values, data_values))
         return(NULL)
       values_expr <- NULL
-      if (inherits(x = values, what = c("numeric", "integer"))) {
+      if (inherits(x = values, what = c("numeric", "integer")) & var != "t") {
         data_range <- find_range_step(data_values)$range
         if (!isTRUE(all.equal(values, data_range))) {
+          if (isTRUE(nas)) {
+            if (anyNA(data_values)) {
+              values_expr <- expr(!!sym(var) >= !!values[1] & !!sym(var) <= !!values[2] | is.na(!!sym(var)))
+            } else {
+              values_expr <- expr(!!sym(var) >= !!values[1] & !!sym(var) <= !!values[2])
+            }
+          } else {
+            if (anyNA(data_values)) {
+              values_expr <- expr(!!sym(var) >= !!values[1] & !!sym(var) <= !!values[2] & !is.na(!!sym(var)))
+            } else {
+              values_expr <- expr(!!sym(var) >= !!values[1] & !!sym(var) <= !!values[2])
+            }
+          }
+        }
+      } else if (inherits(x = values, what = c("numeric", "integer")) & var == "t") {
+        values <- format(values * 3600) 
+        data_range <- range(data_values, na.rm = TRUE)
+        data_range <- format(data_range)
+        if (!identical(values, data_range)) {
           if (isTRUE(nas)) {
             if (anyNA(data_values)) {
               values_expr <- expr(!!sym(var) >= !!values[1] & !!sym(var) <= !!values[2] | is.na(!!sym(var)))
