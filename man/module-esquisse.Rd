@@ -13,7 +13,9 @@ esquisserServer(
   session,
   data = NULL,
   dataModule = c("GlobalEnv", "ImportFile"),
-  sizeDataModule = "m"
+  sizeDataModule = "m",
+  input_modal = TRUE,
+  preprocessing_expression = NULL
 )
 
 esquisserUI(

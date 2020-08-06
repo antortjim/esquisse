@@ -25,7 +25,7 @@
 #' @importFrom stats setNames
 #' @importFrom rlang sym syms expr as_name is_call call2 has_length
 #' @importFrom ggplot2 ggplot aes theme facet_wrap vars coord_flip labs
-#'
+#' @importFrom magrittr `%>%`
 #' @example examples/ex-ggcall.R
 ggcall <- function(data = NULL,
                    mapping = NULL, 
@@ -45,7 +45,9 @@ ggcall <- function(data = NULL,
                    ylim = NULL) {
   if (is.null(data))
     return(expr(ggplot()))
-  data <- sym(data)
+  if (is.character(data))
+    data <- sym(data)
+  
   if (rlang::is_call(mapping)) 
     mapping <- eval(mapping)
   mapping <- dropNulls(mapping)
@@ -62,6 +64,7 @@ ggcall <- function(data = NULL,
     )
   }
   aes <- expr(aes(!!!syms2(mapping)))
+  
   ggcall <- expr(ggplot(!!data) + !!aes)
   if (length(geom) == 1)
     geom_args <- setNames(list(geom_args), geom)

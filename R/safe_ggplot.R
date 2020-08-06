@@ -12,7 +12,7 @@
 #' @importFrom tools toTitleCase
 #' @importFrom rlang eval_tidy
 #' @importFrom ggplot2 ggplot_build
-#'
+#' @importFrom data.table as.data.table
 #' @examples
 #' if (interactive()) {
 #'   library(shiny)
@@ -62,6 +62,11 @@ safe_ggplot <- function(expr, data = NULL, session = shiny::getDefaultReactiveDo
       )
     }
   }
+  
+  if ("id" %in% colnames(data[[1]])) {
+    data <- fslbehavr::make_data_table(data)
+  }
+  
   withCallingHandlers(
     expr = tryCatch(
       expr = {

@@ -50,7 +50,7 @@ chartControlsUI <- function(id,
         filterDF_UI(id = ns("filter-data")),
         style = "default", 
         label = "Data", 
-        up = TRUE, 
+        up = TRUE,
         icon = icon("filter"),
         right = TRUE, 
         inputId = ns("filterdrop"),
@@ -117,6 +117,7 @@ chartControlsServer <- function(input,
                                 data_name,
                                 ggplot_rv, 
                                 aesthetics = reactive(NULL),
+                                preprocessing_expression = NULL,
                                 use_facet = reactive(FALSE), 
                                 use_transX = reactive(FALSE), 
                                 use_transY = reactive(FALSE)) {
@@ -190,7 +191,15 @@ chartControlsServer <- function(input,
       paste0("esquisse", format(Sys.time(), format = "%Y%m%dT%H%M%S"), ".csv")
     },
     content = function(file) {
-      data.table::fwrite(x = output_filter$data_filtered(), file = file, row.names = FALSE)
+      data <- output_filter$data_filtered()
+      if (!is.null(preprocessing_expression)) {
+        data <- list(data)
+        names(data) <- data_name()
+        data <- fslbehavr::make_data_table(data)
+        data <- rlang::eval_tidy(preprocessing_expression, data)
+      }
+      
+      data.table::fwrite(x = data, file = file, row.names = FALSE)
     }
   )
   

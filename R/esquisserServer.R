@@ -22,7 +22,8 @@ esquisserServer <- function(input,
                             data = NULL,
                             dataModule = c("GlobalEnv", "ImportFile"),
                             sizeDataModule = "m",
-                            input_modal = TRUE
+                            input_modal = TRUE,
+                            preprocessing_expression = NULL
                             ) {
 
   ggplotCall <- reactiveValues(code = "")
@@ -119,11 +120,13 @@ esquisserServer <- function(input,
 
   # Module chart controls : title, xlabs, colors, export...
   paramsChart <- reactiveValues(inputs = NULL)
+  
   paramsChart <- callModule(
     module = chartControlsServer,
     id = "controls",
     type = geom_controls,
     data_table = reactive(dataChart$data),
+    preprocessing_expression = preprocessing_expression,
     data_name = reactive({
       req(dataChart$name)
       dataChart$name
@@ -234,9 +237,16 @@ esquisserServer <- function(input,
     } else {
       ylim <- NULL
     }
+    
+    
+    data_name <- dataChart$name
+    if (!is.null(preprocessing_expression)) {
+      data_name <- preprocessing_expression
+    }
+    
 
     gg_call <- ggcall(
-      data = dataChart$name,
+      data = data_name,
       mapping = mapping,
       geom = geom,
       geom_args = geom_args,

@@ -33,6 +33,7 @@
 #' @importFrom shiny plotOutput icon actionButton NS
 #' @importFrom miniUI miniTitleBarButton miniPage
 #' @importFrom shinyWidgets prettyToggle
+#' @importFrom magrittr `%>%`
 #'
 #' @example examples/esquisse-module.R
 esquisserUI <- function(id, header = TRUE,
@@ -110,7 +111,8 @@ esquisserUI <- function(id, header = TRUE,
             icon_off = icon("pause-circle-o", class = "fa-2x")
           )
         ),
-        shiny::plotOutput(outputId = ns("plooooooot"), width = "100%", height = "100%")
+        shiny::plotOutput(outputId = ns("plooooooot"), width = "100%", height = "100%") %>%
+          tagAppendAttributes(class = "resizable")
       )
     ),
 
