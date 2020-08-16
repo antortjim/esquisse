@@ -71,7 +71,7 @@ build_aes <- function(data, ..., .list = NULL, geom = NULL) {
     }
     if (x_type %in% c("discrete", "time") & y_type == "continuous") {
       args$weight <- args$y
-      args$y <- NULL
+      # args$y <- NULL
     }
   }
   eval(expr(aes(!!!args)))

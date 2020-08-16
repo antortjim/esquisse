@@ -89,8 +89,6 @@ geom_popethold <- function(...) {
   fslggetho::stat_pop_etho(...)
 }
 
-
-
 #' @importFrom ggplot2 geom_histogram geom_density geom_bar geom_sf 
 #' geom_boxplot geom_bar geom_point geom_line geom_tile geom_violin
 #' geom_area geom_smooth geom_col
@@ -177,6 +175,10 @@ match_geom_args <- function(geom, args, add_aes = TRUE, mapping = list(), envir 
   if (geom %in% c("bar", "histogram", "boxplot", "violin", "density")) {
     args$size <- NULL
   }
+  if (geom %in% c("bar")) {
+    args$stat <- "summary"
+  }
+  
   if (identical(args$position, "stack")) {
     args$position <- NULL
   }
@@ -216,6 +218,8 @@ match_geom_args <- function(geom, args, add_aes = TRUE, mapping = list(), envir 
       geom_args <- c(geom_args, setNames(aes_args, aes_args))
     }
   }
-  args[names(args) %in% setdiff(names(geom_args), names(mapping))]
+  res <- args[names(args) %in% setdiff(names(geom_args), names(mapping))]
+  print(res)
+  res
 }
 
