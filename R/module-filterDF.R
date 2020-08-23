@@ -333,7 +333,7 @@ make_expr_filter <- function(filters, filters_na, data, data_name) {
           }
         }
       } else if (inherits(x = values, what = c("numeric", "integer")) & var == "t") {
-        values <- format(values * 3600) 
+        values <- values * 3600
         data_range <- range(data_values, na.rm = TRUE)
         data_range <- format(data_range)
         if (!identical(values, data_range)) {
